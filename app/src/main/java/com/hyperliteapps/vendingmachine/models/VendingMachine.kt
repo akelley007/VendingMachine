@@ -8,31 +8,35 @@ class VendingMachine {
     var total: Double = 0.0
     var coinReturn: Double = 0.0
     var displayMessage: String = ""
-    var vendMap: HashMap<Int, VendingItem> = HashMap()
+
+    // A HashMap to keep track of the quantity of each product
+    // for the sake of the exercise the products name is used as the key, howerver,
+    // in a real world scenario it would be better to use something that is guaranteed unique like a SKU or UUID
+    var vendMap: HashMap<String, VendingItem> = HashMap()
 
     // Utility function to add a coin to the total
     fun addToTotal(coin : Coin) {
         when(coin) {
-            Coin.Nickel -> total += 5
-            Coin.Dime -> total += 10
-            Coin.Quarter -> total += 25
+            Coin.Nickel -> total += 0.05
+            Coin.Dime -> total += 0.10
+            Coin.Quarter -> total += 0.25
             else -> coinReturn++
         }
     }
 
     // Utility function to check if a product is in stock
     fun inStock(product: Product): Boolean {
-        val quantity = vendMap[product.ordinal]?.quantity ?: 0
+        val quantity = vendMap[product.name]?.quantity ?: 0
         return  quantity > 0
     }
 
     // Utility function to vend a product
     fun vendProduct(product: Product) {
         if (inStock(product)) {
-            vendMap[product.ordinal]!!.quantity--
+            vendMap[product.name]!!.quantity--
             coinReturn = total - product.price
             total = 0.0
-            fundsAvailable += product.price
+            fundsAvailable += (product.price - coinReturn)
             displayMessage = "THANK YOU"
         }
     }
@@ -50,7 +54,7 @@ class VendingMachine {
     // Utility function to determine if the machine should require exact change before interaction with user
     fun isExactChangeOnly(): Boolean {
         for (item in vendMap) {
-            val product = Product.values()[item.key]
+            val product = item.value.product
             if (fundsAvailable < product.price) {
                 return true
             }

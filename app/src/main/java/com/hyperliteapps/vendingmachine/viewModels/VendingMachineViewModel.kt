@@ -5,6 +5,13 @@ import com.hyperliteapps.vendingmachine.models.Coin
 import com.hyperliteapps.vendingmachine.models.Product
 import com.hyperliteapps.vendingmachine.models.VendingMachine
 
+/**
+ *  ViewModel class that handles operations resulting from user input in the UI
+ *  In the context of this exercise there is no repository layer, but in most real world applications
+ *  the viewmodel would have a reference to some repository object which is used to fetch the data
+ *  from either a network source or from a local cache(like a Room database) which the viewmodel then
+ *  processes to result in some feedback to the user
+ */
 class VendingMachineViewModel : ViewModel() {
     /** What the live data would look like if it was being used in a full App context
      * private val _vendingMachine = MutableLiveData<VendingMachine>()
@@ -12,7 +19,8 @@ class VendingMachineViewModel : ViewModel() {
      *   get() = _vendingMachine
      */
 
-    private var vendingMachine: VendingMachine = VendingMachine()
+    // Public only for the sake of testing, otherwise would be private with only access via the live data value
+    var vendingMachine: VendingMachine = VendingMachine()
 
     fun addCoin(coin: Coin) {
         vendingMachine.addToTotal(coin)
@@ -59,12 +67,17 @@ class VendingMachineViewModel : ViewModel() {
     fun checkDisplay() {
         vendingMachine.resetCoinReturn()
         vendingMachine.displayMessage = if (vendingMachine.total > 0.0) {
-            "${vendingMachine.total}"
+            "$${vendingMachine.total}"
         } else {
             if (vendingMachine.isExactChangeOnly()) "EXACT CHANGE ONLY" else "INSERT COIN"
         }
 
         // Update the state of the vending machine to trigger UI updates via the lifecycle observers
         // _vendingMachine.value = vendingMachine
+    }
+
+    // Utility function to check if a product is in stock
+    fun inStock(product: Product): Boolean {
+        return vendingMachine.inStock(product)
     }
 }
