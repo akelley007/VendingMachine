@@ -8,7 +8,7 @@ class VendingMachine {
     var total: Double = 0.0
     var coinReturn: Double = 0.0
     var displayMessage: String = ""
-    var products: HashMap<Int, Int> = HashMap()
+    var vendMap: HashMap<Int, VendingItem> = HashMap()
 
     // Utility function to add a coin to the total
     fun addToTotal(coin : Coin) {
@@ -22,15 +22,14 @@ class VendingMachine {
 
     // Utility function to check if a product is in stock
     fun inStock(product: Product): Boolean {
-        val quantity = products[product.ordinal]
-        return  quantity != null && quantity > 0
+        val quantity = vendMap[product.ordinal]?.quantity ?: 0
+        return  quantity > 0
     }
 
     // Utility function to vend a product
     fun vendProduct(product: Product) {
         if (inStock(product)) {
-            val quantity = products[product.ordinal]!!
-            products[product.ordinal] = quantity - 1
+            vendMap[product.ordinal]!!.quantity--
             coinReturn = total - product.price
             total = 0.0
             fundsAvailable += product.price
@@ -50,8 +49,8 @@ class VendingMachine {
 
     // Utility function to determine if the machine should require exact change before interaction with user
     fun isExactChangeOnly(): Boolean {
-        for (prod in products) {
-            val product = Product.values()[prod.key]
+        for (item in vendMap) {
+            val product = Product.values()[item.key]
             if (fundsAvailable < product.price) {
                 return true
             }
